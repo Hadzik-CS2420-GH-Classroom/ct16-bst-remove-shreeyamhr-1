@@ -41,7 +41,8 @@ Node* BinarySearchTree::insert_(Node* node, int value) {
 
     if (value < node->data) {
         node->left = insert_(node->left, value);
-    } else if (value > node->data) {
+    }
+    else if (value > node->data) {
         node->right = insert_(node->right, value);
     }
 
@@ -61,7 +62,8 @@ bool BinarySearchTree::search_(Node* node, int value) const {
     if (value == node->data) return true;
     if (value < node->data) {
         return search_(node->left, value);
-    } else {
+    }
+    else {
         return search_(node->right, value);
     }
 }
@@ -145,7 +147,13 @@ Node* BinarySearchTree::find_min_(Node* node) const {
     // TODO: Implement find_min_
     //   - Walk left until there is no left child
     //   - Return that node (it holds the minimum value)
-    return nullptr;
+    if (!node) return nullptr;
+
+    while (node->left != nullptr) {
+        node = node->left;
+    }
+
+    return node;
 }
 
 // =============================================================================
@@ -198,5 +206,46 @@ Node* BinarySearchTree::remove_(Node* node, int value, bool& removed) {
     //         c. recursively remove the successor from the right subtree
     //
     //   Return node at the end
-    return nullptr;
+
+    if (node == nullptr) {
+        return nullptr;
+    }
+
+    if (value < node->data) {
+        node->left = remove_(node->left, value, removed);
+    }
+    else if (value > node->data) {
+        node->right = remove_(node->right, value, removed);
+    }
+    else {
+        removed = true;
+
+        // Case 1: leaf node
+        if (node->left == nullptr && node->right == nullptr) {
+            delete node;
+            return nullptr;
+        }
+
+        // Case 2: only right child
+        if (node->left == nullptr) {
+            Node* temp = node->right;
+            delete node;
+            return temp;
+        }
+
+        // Case 2: only left child
+        if (node->right == nullptr) {
+            Node* temp = node->left;
+            delete node;
+            return temp;
+        }
+
+        // Case 3: two children
+        Node* successor = find_min_(node->right);
+        node->data = successor->data;
+        bool dummy_removed = false;
+        node->right = remove_(node->right, successor->data, dummy_removed);
+    }
+
+    return node;
 }
